@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Event Registration Module</title>
+
+  <style>
+    :root {
+      --bg: #001489;
+      --card: #ffffff;
+      --text: #13235f;
+      --muted: #5f6a94;
+      --line: #d9dff3;
+      --primary: #001489;
+      --accent: #ff8200;
+      --onDark: #ffffff;
+      --danger: #b00020;
+      --warn: #8a5b00;
+      --good: #0a7a2f;
+    }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 18px 16px 40px;
+    }
+    .brandMark {
+      text-align: center;
+      margin: 4px 0 10px;
+    }
+    .brandMark img {
+      width: min(100%, 360px);
+      height: auto;
+      display: inline-block;
+      filter: brightness(0) invert(1);
+    }
+    h2 { margin: 6px 0 6px; font-weight: 700; letter-spacing: 0.2px; color: var(--onDark); }
+    .muted { color: var(--muted); margin-bottom: 16px; }
+    .card {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 10px 30px rgba(15, 18, 29, 0.06);
+    }
+    .row {
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:end;
+      margin-bottom: 8px;
+    }
+    .field { flex: 1 1 220px; min-width: 220px; }
+    label { display:block; font-size:12px; color: var(--muted); margin-bottom:6px; }
+    input, select {
+      padding:12px;
+      font-size:16px;
+      width: 100%;
+      box-sizing:border-box;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      outline: none;
+    }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(255, 130, 0, 0.18);
+    }
+    button { padding:12px 16px; font-size:16px; cursor:pointer; border-radius:10px; border:1px solid var(--line); background:#fff; }
+    .btnPrimary { font-size:17px; padding:14px 18px; background: var(--primary); color:#fff; border-color: var(--primary); box-shadow: inset 0 -3px 0 rgba(255,130,0,0.35); width: 100%; }
+    .btnWide { min-width: 220px; }
+    .small { margin-top:10px; font-size:13px; color: var(--muted); }
+    #msg { margin: 12px 0 6px; font-size: 15px; font-weight: 600; min-height: 22px; }
+    .good { color: var(--good); }
+    .bad { color: var(--danger); }
+    .warn { color: var(--warn); }
+    .hr { border:none; border-top:1px solid var(--line); margin:14px 0; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid #ffd1a0; background:#fff7ef; font-size:12px; color:#9b4f00; }
+    .termsRow { display:flex; align-items:center; gap:10px; margin: 8px 0 0; font-size:14px; color: var(--muted); }
+    .termsRow input { width:auto; }
+    .termsLink { color: var(--accent); text-decoration: underline; cursor:pointer; }
+    .natMobile { display: none; }
+    .natDesktop { display: block; }
+    .natWrap { position: static; }
+    .natList {
+      position: static;
+      margin-top: 6px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .natItem {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #111217;
+    }
+    .natItem:hover { background: rgba(255,130,0,0.10); }
+    .hiddenSelect { display: none; }
+
+    .modalOverlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      width: 100%;
+      max-width: 720px;
+      max-height: 86vh;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    }
+    .modal h3 { margin: 0 0 8px; }
+    .modal .modalBody {
+      max-height: 64vh;
+      overflow-y: auto;
+      padding-right: 6px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .modal .modalBody p { margin: 0 0 12px; }
+    .modalActions { margin-top: 16px; display: flex; justify-content: flex-end; gap: 10px; }
+
+    .switchWrap { display:flex; justify-content:center; margin: 22px 0 20px; }
+    .switch { display:flex; border:1px solid var(--line); border-radius:999px; overflow:hidden; background:#fff; }
+    .switch button { border:none; background:transparent; padding:10px 18px; font-size:14px; }
+    .switch .active { background: var(--primary); color:#fff; box-shadow: inset 0 -3px 0 rgba(255,130,0,0.45); }
+
+    .childBlock { border:1px dashed var(--line); border-radius:12px; padding:12px; margin-top:10px; background:#fbfcff; }
+    .childRow { align-items: end; }
+    .childRow .field { min-width: 160px; }
+    .iconBtn {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 10px;
+      font-size: 20px;
+      line-height: 1;
+    }
+    #addChildBtn { width: 100%; }
+
+    .helper { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    .inputError { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(176, 0, 32, 0.12); }
+    .page > .muted,
+    .page > .small.muted {
+      color: rgba(255, 255, 255, 0.86);
+    }
+    .siteFooter {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 11px;
+      letter-spacing: 0.4px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    @media (max-width: 720px) {
+      .page { padding: 14px 12px 28px; }
+      .card { padding: 14px; }
+      .row { gap: 10px; }
+      .field { min-width: 100%; }
+      .btnWide { width: 100%; min-width: 0; }
+      .switch button { padding: 10px 14px; }
+      .natMobile { display: block; }
+      .natDesktop { display: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="brandMark">
+      <img id="brandLogo" src="sib-millionaire-lockup.svg" alt="SIB Millionaire" />
+    </div>
+    <div class="switchWrap">
+      <div class="switch">
+        <button id="adultTab" type="button" class="active">Adult</button>
+        <button id="childTab" type="button">Child</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- ADULT FORM -->
+      <div id="adultForm">
+        <div class="row">
+          <div class="field">
+            <label>First Name *</label>
+            <input id="a_first" placeholder="First name" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label>Last Name *</label>
+            <input id="a_last" placeholder="Last name" autocomplete="family-name" />
+          </div>
+          <div class="field">
+            <label>Phone *</label>
+            <input id="a_phone" placeholder="05X XXX XXXX or +9715XXXXXXX" inputmode="tel" pattern="[0-9+]*" autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Email *</label>
+            <input id="a_email" placeholder="name@email.com" inputmode="email" autocomplete="email" />
+          </div>
+
+          <div class="field">
+            <label>Age Range *</label>
+            <select id="a_age"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Nationality *</label>
+            <div class="natWrap natMobile">
+              <input id="a_nat_search" placeholder="Search nationality..." />
+              <div id="a_nat_list" class="natList"></div>
+            </div>
+            <select id="a_nat" class="natDesktop"></select>
+          </div>
+          <div class="field">
+            <label>Emirate *</label>
+            <select id="a_emir"></select>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- CHILD FORM -->
+      <div id="childForm" style="display:none;">
+        <div class="row">
+          <div class="field">
+            <label>Parent First Name *</label>
+            <input id="p_first" placeholder="Parent first name" autocomplete="given-name" />
+          </div>
+          <div class="field">
+            <label>Parent Last Name *</label>
+            <input id="p_last" placeholder="Parent last name" autocomplete="family-name" />
+          </div>
+          <div class="field">
+            <label>Parent Phone *</label>
+            <input id="p_phone" placeholder="05X XXX XXXX or +9715XXXXXXX" inputmode="tel" pattern="[0-9+]*" autocomplete="tel" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label>Parent Email *</label>
+            <input id="p_email" placeholder="parent@email.com" inputmode="email" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label>Nationality *</label>
+            <div class="natWrap natMobile">
+              <input id="p_nat_search" placeholder="Search nationality..." />
+              <div id="p_nat_list" class="natList"></div>
+            </div>
+            <select id="p_nat" class="natDesktop"></select>
+          </div>
+          <div class="field">
+            <label>Emirate *</label>
+            <select id="p_emir"></select>
+          </div>
+        </div>
+
+      <div class="childBlock">
+        <div id="childrenWrap"></div>
+        <div class="row" style="margin-top:8px;">
+          <button id="addChildBtn" type="button">+ Add Child</button>
+        </div>
+      </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <div class="field">
+            <label>Parent participates? (optional)</label>
+            <select id="parent_participant">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Parent Age Range (required only if Yes)</label>
+            <select id="parent_age"></select>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="msg"></div>
+
+      <div class="termsRow">
+        <input id="termsCheck" type="checkbox" />
+        <div>I agree to the <span id="termsLink" class="termsLink">Terms &amp; Conditions</span></div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button id="generateAdultBtn" class="btnPrimary" type="button">Generate QR Code</button>
+        <button id="generateChildBtn" class="btnPrimary" type="button" style="display:none;">Generate QR Code</button>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <button id="clearBtn" class="btnWide" type="button">Clear</button>
+      </div>
+    </div>
+
+    <div class="siteFooter">THIS SYSTEM IS POWERED BY EngageOS - ALMOST IMPOSSIBLE AGENCY © 2026</div>
+  </div>
+
+  <div id="termsModal" class="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+    <div class="modal">
+      <h3 id="termsTitle">Terms &amp; Conditions</h3>
+      <div class="modalBody">
+        <p>By registering for this activation, you agree to participate in the SIB Millionaire Mega Mall activation and consent to the collection of the information submitted through this form for event participation, customer engagement, and follow-up by Sharjah Islamic Bank, use, and storage of the information you submit through this form (&ldquo;your Information&rdquo;) by Sharjah Islamic Bank (&ldquo;SIB&rdquo;, &ldquo;we&rdquo;) for the purpose of administering your participation in this activation, in accordance with applicable UAE Personal Data Protection Law and SIB&rsquo;s Privacy policy available at www.sib.ae/en/privacy-policy</p>
+        <p>Your Information will be retained for a period of 7 days following the conclusion of the activation, after which it will be securely deleted, save where retention is required to comply with a legal or regulatory obligation.</p>
+        <p>Minors may take part in the physical activation only when accompanied by, and under the direct supervision of, a parent or legal guardian who is the registered participant. All registration, consent, and data collection under these terms relate solely to the registering adult; SIB does not separately collect or process personal data from an accompanying minor.</p>
+        <p>Participants will receive an RFID card to access and complete the activation stations. Each participant may register and participate once. The RFID system may be used to validate station completion, manage participation flow, and help prevent duplicate participation or repeated redemption of giveaways.</p>
+        <p>Giveaways, ice cream, and any on-ground rewards are subject to availability and are offered on a first-come, first-served basis during the activation period. Participation in the activation does not guarantee eligibility for, or winning of, any SIB Millionaire prize.</p>
+        <p>Eligibility for the official SIB Millionaire Draw is subject to Sharjah Islamic Bank&rsquo;s official SIB Millionaire campaign terms and conditions. The official SIB Millionaire terms and conditions remain applicable and can be viewed on the SIB website.</p>
+        <p>By submitting this form, you confirm that the information provided is accurate and that you agree to be contacted by Sharjah Islamic Bank regarding SIB products, services, and campaign-related communications, where applicable.</p>
+        <p>By submitting this form, you confirm that the information provided is accurate and complete.</p>
+        <p>[ ] I would also like to receive communications from Sharjah Islamic Bank about its products, services, and future campaigns.</p>
+        <p>Registration and RFID data for this activation are processed on our behalf by the AI EngageOS platform, acting as SIB&rsquo;s data processor, solely for the purposes described in these terms. SIB remains responsible for your Information in accordance with applicable data protection law.</p>
+        <p>Sharjah Islamic Bank reserves the right to amend, suspend, or cancel any part of the activation at its discretion, subject to applicable requirements. These terms are governed by the laws of the United Arab Emirates and the laws of the Emirate of Sharjah, and any dispute arising out of or in connection with them shall be subject to the jurisdiction of the courts of Sharjah.</p>
+      </div>
+      <div class="modalActions">
+        <button id="termsCloseBtn" type="button" class="btnGhost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMPORTANT: keep this order -->
+  <script src="libs/qrcode.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
